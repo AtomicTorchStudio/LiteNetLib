@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -525,7 +527,7 @@ namespace LiteNetLib.Tests
         [Test, Timeout(10000)]
         public void ChannelsTest()
         {
-            const int channelsCount = 64;
+            const int channelsCount = NetConstants.MaxChannelsCount;
             var server = ManagerStack.Server(1);
             var client = ManagerStack.Client(1);
             server.ChannelsCount = channelsCount;
@@ -542,25 +544,47 @@ namespace LiteNetLib.Tests
             };
 
             int messagesReceived = 0;
+            var dataSize = ushort.MaxValue;
+
+            var remainingChannelsPerMethod = methods.ToDictionary(p => p,
+                                                                  p => new HashSet<ushort>(
+                                                                      Enumerable.Range(0, channelsCount)
+                                                                          .Select(v => (ushort)v)
+                                                                          .ToArray()));
+            
             ManagerStack.ClientListener(1).PeerConnectedEvent += peer =>
             {
-                for (int i = 0; i < channelsCount; i++)
+                for (var i = channelsCount - 1; i >= 0; i--)
                 {
                     foreach (var deliveryMethod in methods)
                     {
+                        var channelId = (ushort)i;
                         writer.Reset();
                         writer.Put((byte) deliveryMethod);
+                        writer.Put(channelId);
                         if (deliveryMethod == DeliveryMethod.ReliableOrdered ||
                             deliveryMethod == DeliveryMethod.ReliableUnordered)
-                            writer.Put(new byte[506]);
-                        peer.Send(writer, (byte) i, deliveryMethod);
+                            writer.Put(new byte[dataSize]);
+                        peer.Send(writer, channelId, deliveryMethod);
                     }
                 }
             };
-            ManagerStack.ServerListener(1).NetworkReceiveEvent += (peer, reader, method) =>
+            ManagerStack.ServerListener(1).NetworkReceiveEvent += (peer, reader, deliveryMethod) =>
             {
-                Assert.AreEqual((DeliveryMethod)reader.GetByte(), method);
+                var receivedDeliveryMethod = (DeliveryMethod)reader.GetByte();
+                var receivedChannelNumber = reader.GetUShort();
+                Assert.AreEqual(receivedDeliveryMethod, deliveryMethod);
                 messagesReceived++;
+                if (deliveryMethod == DeliveryMethod.ReliableOrdered
+                    || deliveryMethod == DeliveryMethod.ReliableUnordered)
+                {
+                    Assert.AreEqual(dataSize, reader.AvailableBytes);
+                }
+
+                if (!remainingChannelsPerMethod[deliveryMethod].Remove(receivedChannelNumber))
+                {
+                    throw new Exception("Already received channel: " + receivedChannelNumber);
+                }
             };
             client.Connect("127.0.0.1", DefaultPort, DefaultAppKey);
 
@@ -570,6 +594,8 @@ namespace LiteNetLib.Tests
                 client.PollEvents();
                 Thread.Sleep(15);
             }
+            
+            Assert.AreEqual(0, remainingChannelsPerMethod.SelectMany(p => p.Value).Count(), "Not all channels received");
 
             Assert.AreEqual(methods.Length*channelsCount, messagesReceived);
             Assert.AreEqual(1, server.ConnectedPeersCount);

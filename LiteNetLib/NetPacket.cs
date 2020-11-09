@@ -93,28 +93,35 @@ namespace LiteNetLib
             RawData[0] |= 0x80; //set first bit
         }
 
-        public byte ChannelId
+        public ushort ChannelId
         {
-            get { return RawData[3]; }
-            set { RawData[3] = value; }
+            get
+            {
+                return (ushort)(this.RawData[3] | this.RawData[4] << 8);
+            }
+            set
+            {
+                RawData[3] = (byte)value;
+                RawData[4] = (byte)(value >> 8);
+            }
         }
 
         public ushort FragmentId
         {
-            get { return BitConverter.ToUInt16(RawData, 4); }
-            set { FastBitConverter.GetBytes(RawData, 4, value); }
+            get { return BitConverter.ToUInt16(RawData, 1 + 4); }
+            set { FastBitConverter.GetBytes(RawData, 1 + 4, value); }
         }
 
         public ushort FragmentPart
         {
-            get { return BitConverter.ToUInt16(RawData, 6); }
-            set { FastBitConverter.GetBytes(RawData, 6, value); }
+            get { return BitConverter.ToUInt16(RawData, 1 + 6); }
+            set { FastBitConverter.GetBytes(RawData, 1 + 6, value); }
         }
 
         public ushort FragmentsTotal
         {
-            get { return BitConverter.ToUInt16(RawData, 8); }
-            set { FastBitConverter.GetBytes(RawData, 8, value); }
+            get { return BitConverter.ToUInt16(RawData, 1 + 8); }
+            set { FastBitConverter.GetBytes(RawData, 1 + 8, value); }
         }
 
         //Data

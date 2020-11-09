@@ -42,7 +42,7 @@
         public const int SocketTTL = 255;
 
         public const int HeaderSize = 1;
-        public const int ChanneledHeaderSize = 4;
+        public const int ChanneledHeaderSize = 4 + 1;
         public const int FragmentHeaderSize = 6;
         public const int FragmentedHeaderTotalSize = ChanneledHeaderSize + FragmentHeaderSize;
         public const ushort MaxSequence = 32768;
@@ -69,5 +69,7 @@
         public const byte MaxConnectionNumber = 4;
 
         public const int PacketPoolSize = 1000;
+
+        public const int MaxChannelsCount = 512;
     }
 }

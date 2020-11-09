@@ -175,7 +175,7 @@ namespace LiteNetLib
         private readonly PacketLayerBase _extraPacketLayer;
         private int _lastPeerId;
         private readonly Queue<int> _peerIds;
-        private byte _channelsCount = 1;
+        private ushort _channelsCount = 1;
 
         internal readonly NetPacketPool NetPacketPool;
 
@@ -310,15 +310,15 @@ namespace LiteNetLib
         }
 
         /// <summary>
-        /// QoS channel count per message type (value must be between 1 and 64 channels)
+        /// QoS channel count per message type (value must be between 1 and NetConstants.MaxChannelsCount channels)
         /// </summary>
-        public byte ChannelsCount
+        public ushort ChannelsCount
         {
             get { return _channelsCount; }
             set
             {
-                if (value < 1 || value > 64)
-                    throw new ArgumentException("Channels count must be between 1 and 64");
+                if (value < 1 || value > NetConstants.MaxChannelsCount)
+                    throw new ArgumentException("Channels count must be between 1 and " + NetConstants.MaxChannelsCount);
                 _channelsCount = value;
             }
         }
@@ -1088,7 +1088,7 @@ namespace LiteNetLib
         /// <param name="writer">DataWriter with data</param>
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
-        public void SendToAll(NetDataWriter writer, byte channelNumber, DeliveryMethod options)
+        public void SendToAll(NetDataWriter writer, ushort channelNumber, DeliveryMethod options)
         {
             SendToAll(writer.Data, 0, writer.Length, channelNumber, options);
         }
@@ -1099,7 +1099,7 @@ namespace LiteNetLib
         /// <param name="data">Data</param>
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
-        public void SendToAll(byte[] data, byte channelNumber, DeliveryMethod options)
+        public void SendToAll(byte[] data, ushort channelNumber, DeliveryMethod options)
         {
             SendToAll(data, 0, data.Length, channelNumber, options);
         }
@@ -1112,7 +1112,7 @@ namespace LiteNetLib
         /// <param name="length">Length of data</param>
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
-        public void SendToAll(byte[] data, int start, int length, byte channelNumber, DeliveryMethod options)
+        public void SendToAll(byte[] data, int start, int length, ushort channelNumber, DeliveryMethod options)
         {
             try
             {
@@ -1168,7 +1168,7 @@ namespace LiteNetLib
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
         /// <param name="excludePeer">Excluded peer</param>
-        public void SendToAll(NetDataWriter writer, byte channelNumber, DeliveryMethod options, NetPeer excludePeer)
+        public void SendToAll(NetDataWriter writer, ushort channelNumber, DeliveryMethod options, NetPeer excludePeer)
         {
             SendToAll(writer.Data, 0, writer.Length, channelNumber, options, excludePeer);
         }
@@ -1180,7 +1180,7 @@ namespace LiteNetLib
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
         /// <param name="excludePeer">Excluded peer</param>
-        public void SendToAll(byte[] data, byte channelNumber, DeliveryMethod options, NetPeer excludePeer)
+        public void SendToAll(byte[] data, ushort channelNumber, DeliveryMethod options, NetPeer excludePeer)
         {
             SendToAll(data, 0, data.Length, channelNumber, options, excludePeer);
         }
@@ -1195,7 +1195,7 @@ namespace LiteNetLib
         /// <param name="channelNumber">Number of channel (from 0 to channelsCount - 1)</param>
         /// <param name="options">Send options (reliable, unreliable, etc.)</param>
         /// <param name="excludePeer">Excluded peer</param>
-        public void SendToAll(byte[] data, int start, int length, byte channelNumber, DeliveryMethod options, NetPeer excludePeer)
+        public void SendToAll(byte[] data, int start, int length, ushort channelNumber, DeliveryMethod options, NetPeer excludePeer)
         {
             try
             {

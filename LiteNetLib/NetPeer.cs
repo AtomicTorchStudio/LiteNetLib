@@ -101,7 +101,7 @@ namespace LiteNetLib
             public NetPacket[] Fragments;
             public int ReceivedCount;
             public int TotalSize;
-            public byte ChannelId;
+            public ushort ChannelId;
         }
         private int _fragmentId;
         private readonly Dictionary<ushort, IncomingFragments> _holdedFragments;
@@ -229,7 +229,7 @@ namespace LiteNetLib
         /// <param name="channelNumber">number of channel 0-63</param>
         /// <param name="ordered">type of channel ReliableOrdered or ReliableUnordered</param>
         /// <returns>packets count in channel queue</returns>
-        public int GetPacketsCountInReliableQueue(byte channelNumber, bool ordered)
+        public int GetPacketsCountInReliableQueue(ushort channelNumber, bool ordered)
         {
             int idx = channelNumber * 4 +
                        (byte) (ordered ? DeliveryMethod.ReliableOrdered : DeliveryMethod.ReliableUnordered);
@@ -237,7 +237,7 @@ namespace LiteNetLib
             return channel != null ? ((ReliableChannel)channel).PacketsInQueue : 0;
         }
 
-        private BaseChannel CreateChannel(byte idx)
+        private BaseChannel CreateChannel(ushort idx)
         {
             BaseChannel newChannel = _channels[idx];
             if (newChannel != null)
@@ -354,7 +354,7 @@ namespace LiteNetLib
         /// <exception cref="ArgumentException">
         ///     If you trying to send unreliable packet type<para/>
         /// </exception>
-        public void SendWithDeliveryEvent(byte[] data, byte channelNumber, DeliveryMethod deliveryMethod, object userData)
+        public void SendWithDeliveryEvent(byte[] data, ushort channelNumber, DeliveryMethod deliveryMethod, object userData)
         {
             if (deliveryMethod != DeliveryMethod.ReliableOrdered && deliveryMethod != DeliveryMethod.ReliableUnordered)
                 throw new ArgumentException("Delivery event will work only for ReliableOrdered/Unordered packets");
@@ -373,7 +373,7 @@ namespace LiteNetLib
         /// <exception cref="ArgumentException">
         ///     If you trying to send unreliable packet type<para/>
         /// </exception>
-        public void SendWithDeliveryEvent(byte[] data, int start, int length, byte channelNumber, DeliveryMethod deliveryMethod, object userData)
+        public void SendWithDeliveryEvent(byte[] data, int start, int length, ushort channelNumber, DeliveryMethod deliveryMethod, object userData)
         {
             if (deliveryMethod != DeliveryMethod.ReliableOrdered && deliveryMethod != DeliveryMethod.ReliableUnordered)
                 throw new ArgumentException("Delivery event will work only for ReliableOrdered/Unordered packets");
@@ -390,7 +390,7 @@ namespace LiteNetLib
         /// <exception cref="ArgumentException">
         ///     If you trying to send unreliable packet type<para/>
         /// </exception>
-        public void SendWithDeliveryEvent(NetDataWriter dataWriter, byte channelNumber, DeliveryMethod deliveryMethod, object userData)
+        public void SendWithDeliveryEvent(NetDataWriter dataWriter, ushort channelNumber, DeliveryMethod deliveryMethod, object userData)
         {
             if (deliveryMethod != DeliveryMethod.ReliableOrdered && deliveryMethod != DeliveryMethod.ReliableUnordered)
                 throw new ArgumentException("Delivery event will work only for ReliableOrdered/Unordered packets");
@@ -455,7 +455,7 @@ namespace LiteNetLib
         ///     MTU - headerSize bytes for Unreliable<para/>
         ///     Fragment count exceeded ushort.MaxValue<para/>
         /// </exception>
-        public void Send(byte[] data, byte channelNumber, DeliveryMethod deliveryMethod)
+        public void Send(byte[] data, ushort channelNumber, DeliveryMethod deliveryMethod)
         {
             SendInternal(data, 0, data.Length, channelNumber, deliveryMethod, null);
         }
@@ -471,7 +471,7 @@ namespace LiteNetLib
         ///     MTU - headerSize bytes for Unreliable<para/>
         ///     Fragment count exceeded ushort.MaxValue<para/>
         /// </exception>
-        public void Send(NetDataWriter dataWriter, byte channelNumber, DeliveryMethod deliveryMethod)
+        public void Send(NetDataWriter dataWriter, ushort channelNumber, DeliveryMethod deliveryMethod)
         {
             SendInternal(dataWriter.Data, 0, dataWriter.Length, channelNumber, deliveryMethod, null);
         }
@@ -489,7 +489,7 @@ namespace LiteNetLib
         ///     MTU - headerSize bytes for Unreliable<para/>
         ///     Fragment count exceeded ushort.MaxValue<para/>
         /// </exception>
-        public void Send(byte[] data, int start, int length, byte channelNumber, DeliveryMethod deliveryMethod)
+        public void Send(byte[] data, int start, int length, ushort channelNumber, DeliveryMethod deliveryMethod)
         {
             SendInternal(data, start, length, channelNumber, deliveryMethod, null);
         }
@@ -498,7 +498,7 @@ namespace LiteNetLib
             byte[] data, 
             int start, 
             int length, 
-            byte channelNumber, 
+            ushort channelNumber, 
             DeliveryMethod deliveryMethod,
             object userData)
         {
@@ -516,7 +516,7 @@ namespace LiteNetLib
             else
             {
                 property = PacketProperty.Channeled;
-                channel = CreateChannel((byte)(channelNumber*4 + (byte)deliveryMethod));
+                channel = CreateChannel((ushort)(channelNumber*4 + (byte)deliveryMethod));
             }
 
             //Prepare  

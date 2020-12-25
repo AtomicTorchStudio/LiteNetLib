@@ -215,6 +215,7 @@ namespace LiteNetLib
             _deliveredFragments = new Dictionary<ushort, ushort>();
 
             _channels = new BaseChannel[netManager.ChannelsCount * 4];
+            _channelSendQueue = new Queue<BaseChannel>(netManager.ChannelsCount * 4);
         }
 
         private void SetMtu(int mtuIdx)

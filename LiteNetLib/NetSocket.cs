@@ -15,6 +15,8 @@ using System.Threading;
 
 namespace LiteNetLib
 {
+    using System.Diagnostics;
+
 #if UNITY_IOS && !UNITY_EDITOR
     public class UnitySocketFix : MonoBehaviour
     {
@@ -210,6 +212,7 @@ namespace LiteNetLib
             Socket socket = (Socket)state;
             EndPoint bufferEndPoint = new IPEndPoint(socket.AddressFamily == AddressFamily.InterNetwork ? IPAddress.Any : IPAddress.IPv6Any, 0);
             byte[] receiveBuffer = new byte[NetConstants.MaxPacketSize];
+            var stopwatch = Stopwatch.StartNew();
 
             while (IsActive())
             {
@@ -220,8 +223,15 @@ namespace LiteNetLib
                 {
                     if (socket.Available == 0 && !socket.Poll(ReceivePollingTime, SelectMode.SelectRead))
                         continue;
+
+                    stopwatch.Reset();
+                    stopwatch.Start();
                     result = socket.ReceiveFrom(receiveBuffer, 0, receiveBuffer.Length, SocketFlags.None,
                         ref bufferEndPoint);
+                    if (_listener is NetManager netManager)
+                    {
+                        netManager.SocketReceiveProfilerMeasurement?.Invoke(stopwatch.Elapsed);
+                    }
                 }
                 catch (SocketException ex)
                 {

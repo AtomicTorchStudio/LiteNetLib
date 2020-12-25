@@ -703,6 +703,7 @@ namespace LiteNetLib
                     peersToRemove.Clear();
                 }
 
+                this.UpdateLogicProfilerMeasurement?.Invoke(stopwatch.Elapsed);
                 int sleepTime = UpdateTime - (int)stopwatch.ElapsedMilliseconds;
                 if (sleepTime > 0)
                     _updateTriggerEvent.WaitOne(sleepTime);
@@ -1263,7 +1264,7 @@ namespace LiteNetLib
             _manualMode = false;
             if (!_socket.Bind(addressIPv4, addressIPv6, port, ReuseAddress, IPv6Enabled, false))
                 return false;
-            _logicThread = new Thread(UpdateLogic) { Name = "LogicThread", IsBackground = true };
+            _logicThread = new Thread(UpdateLogic) { Name = LogicThreadName, IsBackground = true };
             _logicThread.Start();
             return true;
         }
@@ -1714,5 +1715,11 @@ namespace LiteNetLib
         {
             return new NetPeerEnumerator(_headPeer);
         }
+        
+        public string LogicThreadName { get; set; } = "LogicThread";
+        
+        public Action<TimeSpan> UpdateLogicProfilerMeasurement;
+
+        public Action<TimeSpan> SocketReceiveProfilerMeasurement;
     }
 }

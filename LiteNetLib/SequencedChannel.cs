@@ -10,10 +10,10 @@ namespace LiteNetLib
         private NetPacket _lastPacket;
         private readonly NetPacket _ackPacket;
         private bool _mustSendAck;
-        private readonly byte _id;
+        private readonly ushort _id;
         private long _lastPacketSendTime;
 
-        public SequencedChannel(NetPeer peer, bool reliable, byte id) : base(peer)
+        public SequencedChannel(NetPeer peer, bool reliable, ushort id) : base(peer)
         {
             _id = id;
             _reliable = reliable;

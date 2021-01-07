@@ -71,9 +71,9 @@ namespace LiteNetLib
         private readonly bool _ordered;
         private readonly int _windowSize;
         private const int BitsInByte = 8;
-        private readonly byte _id;
+        private readonly ushort _id;
 
-        public ReliableChannel(NetPeer peer, bool ordered, byte id) : base(peer)
+        public ReliableChannel(NetPeer peer, bool ordered, ushort id) : base(peer)
         {
             _id = id;
             _windowSize = NetConstants.DefaultWindowSize;

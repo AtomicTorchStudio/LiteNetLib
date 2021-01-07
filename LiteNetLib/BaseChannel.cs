@@ -1,13 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace LiteNetLib
 {
-    using System.Runtime.CompilerServices;
-
     internal abstract class BaseChannel
     {
         protected readonly NetPeer Peer;
         protected readonly Queue<NetPacket> OutgoingQueue;
+        private int _isAddedToPeerChannelSendQueue;
+
+        public int PacketsInQueue
+        {
+            get { return OutgoingQueue.Count; }
+        }
 
         protected BaseChannel(NetPeer peer)
         {
@@ -15,47 +20,33 @@ namespace LiteNetLib
             OutgoingQueue = new Queue<NetPacket>(64);
         }
 
-        public int PacketsInQueue
-        {
-            get { return OutgoingQueue.Count; }
-        }
-
-        public abstract bool HasPacketsToSend { get; }
-
-        public object OutgoingQueueSyncRoot => OutgoingQueue;
-
-        public bool IsAddedToPeerChannelSendQueue;
-
         public void AddToQueue(NetPacket packet)
         {
             lock (OutgoingQueue)
             {
                 OutgoingQueue.Enqueue(packet);
-                AddToPeerChannelSendQueueNoLock();
             }
+            AddToPeerChannelSendQueue();
         }
 
         protected void AddToPeerChannelSendQueue()
         {
-            lock (OutgoingQueue)
+            if (Interlocked.CompareExchange(ref _isAddedToPeerChannelSendQueue, 1, 0) == 0)
             {
-                AddToPeerChannelSendQueueNoLock();
+                Peer.AddToReliableChannelSendQueue(this);
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void AddToPeerChannelSendQueueNoLock()
+        public bool SendAndCheckQueue()
         {
-            if (IsAddedToPeerChannelSendQueue)
-            {
-                return;
-            }
+            bool hasPacketsToSend = SendNextPackets();
+            if (!hasPacketsToSend)
+                Interlocked.Exchange(ref _isAddedToPeerChannelSendQueue, 0);
 
-            Peer.AddToReliableChannelSendQueue(this);
-            IsAddedToPeerChannelSendQueue = true;
+            return hasPacketsToSend;
         }
 
-        public abstract void SendNextPackets();
+        protected abstract bool SendNextPackets();
         public abstract bool ProcessPacket(NetPacket packet);
     }
 }

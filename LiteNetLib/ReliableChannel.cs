@@ -10,8 +10,6 @@ namespace LiteNetLib
             private long _timeStamp;
             private bool _isSent;
 
-            public bool HasPacket => !ReferenceEquals(_packet, null);
-
             public override string ToString()
             {
                 return _packet == null ? "Empty" : _packet.Sequence.ToString();
@@ -73,11 +71,9 @@ namespace LiteNetLib
         private readonly bool _ordered;
         private readonly int _windowSize;
         private const int BitsInByte = 8;
-        private readonly ushort _id;
+        private readonly byte _id;
 
-        private bool _hasPendingPackets;
-
-        public ReliableChannel(NetPeer peer, bool ordered, ushort id) : base(peer)
+        public ReliableChannel(NetPeer peer, bool ordered, byte id) : base(peer)
         {
             _id = id;
             _windowSize = NetConstants.DefaultWindowSize;
@@ -171,11 +167,7 @@ namespace LiteNetLib
             }
         }
 
-        public override bool HasPacketsToSend => _hasPendingPackets
-                                                 || _mustSendAcks
-                                                 || OutgoingQueue.Count > 0;
-
-        public override void SendNextPackets()
+        protected override bool SendNextPackets()
         {
             if (_mustSendAcks)
             {
@@ -186,6 +178,8 @@ namespace LiteNetLib
             }
 
             long currentTime = DateTime.UtcNow.Ticks;
+            bool hasPendingPackets = false;
+
             lock (_pendingPackets)
             {
                 //get packets from queue
@@ -206,17 +200,19 @@ namespace LiteNetLib
                 }
 
                 //send
-                _hasPendingPackets = false;
                 for (int pendingSeq = _localWindowStart; pendingSeq != _localSeqence; pendingSeq = (pendingSeq + 1) % NetConstants.MaxSequence)
                 {
                     // Please note: TrySend is invoked on a mutable struct, it's important to not extract it into a variable here
-                    _pendingPackets[pendingSeq % _windowSize].TrySend(currentTime, Peer, out bool hasPacket);
+                    bool hasPacket;
+                    _pendingPackets[pendingSeq % _windowSize].TrySend(currentTime, Peer, out hasPacket);
                     if (hasPacket)
                     {
-                        _hasPendingPackets = true;
+                        hasPendingPackets = true;
                     }
                 }
             }
+
+            return hasPendingPackets || _mustSendAcks || OutgoingQueue.Count > 0;
         }
 
         //Process incoming packet
@@ -297,7 +293,6 @@ namespace LiteNetLib
                 _outgoingAcks.RawData[ackByte] |= (byte) (1 << ackBit);
             }
 
-            // Please note: this method is invoked outside the lock to prevent a deadlock.
             AddToPeerChannelSendQueue();
 
             //detailed check
@@ -340,7 +335,6 @@ namespace LiteNetLib
                 _earlyReceived[ackIdx] = true;
                 Peer.AddReliablePacket(_deliveryMethod, packet);
             }
-            
             return true;
         }
     }

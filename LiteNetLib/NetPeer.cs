@@ -202,7 +202,13 @@ namespace LiteNetLib
             Statistics = new NetStatistics();
             _packetPool = netManager.NetPacketPool;
             NetManager = netManager;
-            SetMtu(0);
+
+            if (netManager.MtuOverride > 0)
+                OverrideMtu(netManager.MtuOverride);
+            else if (netManager.UseSafeMtu)
+                SetMtu(0);
+            else
+                SetMtu(1);
 
             EndPoint = remoteEndPoint;
             _connectionState = ConnectionState.Connected;
@@ -221,6 +227,12 @@ namespace LiteNetLib
         private void SetMtu(int mtuIdx)
         {
             _mtu = NetConstants.PossibleMtu[mtuIdx] - NetManager.ExtraPacketSizeForLayer;
+        }
+
+        private void OverrideMtu(int mtuValue)
+        {
+            _mtu = mtuValue;
+            _finishMtu = true;
         }
 
         /// <summary>
@@ -522,7 +534,7 @@ namespace LiteNetLib
             {
                 //if cannot be fragmented
                 if (deliveryMethod != DeliveryMethod.ReliableOrdered && deliveryMethod != DeliveryMethod.ReliableUnordered)
-                    throw new TooBigPacketException("Unreliable packet size exceeded maximum of " + (mtu - headerSize) + " bytes");
+                    throw new TooBigPacketException("Unreliable or ReliableSequenced packet size exceeded maximum of " + (mtu - headerSize) + " bytes, Check allowed size by GetMaxSinglePacketSize()");
 
                 int packetFullSize = mtu - headerSize;
                 int packetDataSize = packetFullSize - NetConstants.FragmentHeaderSize;
@@ -1119,19 +1131,10 @@ namespace LiteNetLib
                     while (count-- > 0)
                     {
                         BaseChannel channel = _channelSendQueue.Dequeue();
-                        lock (channel.OutgoingQueueSyncRoot)
+                        if (channel.SendAndCheckQueue())
                         {
-                            channel.SendNextPackets();
-
-                            if (channel.HasPacketsToSend)
-                            {
-                                // still has something to send, re-add it to the send queue
-                                _channelSendQueue.Enqueue(channel);
-                            }
-                            else
-                            {
-                                channel.IsAddedToPeerChannelSendQueue = false;
-                            }
+                            // still has something to send, re-add it to the send queue
+                            _channelSendQueue.Enqueue(channel);
                         }
                     }
                 }

@@ -10,10 +10,10 @@ namespace LiteNetLib
         private NetPacket _lastPacket;
         private readonly NetPacket _ackPacket;
         private bool _mustSendAck;
-        private readonly ushort _id;
+        private readonly byte _id;
         private long _lastPacketSendTime;
 
-        public SequencedChannel(NetPeer peer, bool reliable, ushort id) : base(peer)
+        public SequencedChannel(NetPeer peer, bool reliable, byte id) : base(peer)
         {
             _id = id;
             _reliable = reliable;
@@ -21,23 +21,20 @@ namespace LiteNetLib
                 _ackPacket = new NetPacket(PacketProperty.Ack, 0) {ChannelId = id};
         }
 
-        public override bool HasPacketsToSend => !ReferenceEquals(_lastPacket, null)
-                                                 || _mustSendAck
-                                                 || OutgoingQueue.Count > 0;
-
-        public override void SendNextPackets()
+        protected override bool SendNextPackets()
         {
             if (_reliable && OutgoingQueue.Count == 0)
             {
                 long currentTime = DateTime.UtcNow.Ticks;
                 long packetHoldTime = currentTime - _lastPacketSendTime;
-                if (packetHoldTime < Peer.ResendDelay * TimeSpan.TicksPerMillisecond)
-                    return;
-                var packet = _lastPacket;
-                if (packet != null)
+                if (packetHoldTime >= Peer.ResendDelay * TimeSpan.TicksPerMillisecond)
                 {
-                    _lastPacketSendTime = currentTime;
-                    Peer.SendUserData(packet);
+                    var packet = _lastPacket;
+                    if (packet != null)
+                    {
+                        _lastPacketSendTime = currentTime;
+                        Peer.SendUserData(packet);
+                    }
                 }
             }
             else
@@ -71,6 +68,8 @@ namespace LiteNetLib
                 _ackPacket.Sequence = _remoteSequence;
                 Peer.SendUserData(_ackPacket);
             }
+
+            return _lastPacket != null;
         }
 
         public override bool ProcessPacket(NetPacket packet)
@@ -102,7 +101,7 @@ namespace LiteNetLib
                 packetProcessed = true;
             }
 
-            if (this._reliable)
+            if (_reliable)
             {
                 _mustSendAck = true;
                 AddToPeerChannelSendQueue();

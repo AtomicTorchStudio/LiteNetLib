@@ -1013,8 +1013,22 @@ namespace LiteNetLib
             NetPacket packet = NetPacketPool.GetPacket(count);
             if (!packet.FromBytes(reusableBuffer, start, count))
             {
+                _peersLock.EnterReadLock();
+                bool peer2Found = _peersDict.TryGetValue(remoteEndPoint, out var netPeer2);
+                _peersLock.ExitReadLock();
+                
                 NetPacketPool.Recycle(packet);
-                NetDebug.WriteError("[NM] DataReceived: bad!");
+                
+                if (peer2Found)
+                {
+                    NetDebug.WriteError("[NM] DataReceived: bad! Dropping connection!");
+                    DisconnectPeerForce(netPeer2, DisconnectReason.ConnectionRejected, 0, null);
+                }
+                else
+                {
+                    NetDebug.WriteError("[NM] DataReceived: bad!");
+                }
+
                 return;
             }
 

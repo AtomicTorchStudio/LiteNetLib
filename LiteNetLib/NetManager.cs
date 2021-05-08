@@ -1138,7 +1138,11 @@ namespace LiteNetLib
                     if(peerFound)
                         netPeer.ProcessPacket(packet);
                     else
-                        SendRawAndRecycle(NetPacketPool.GetWithProperty(PacketProperty.PeerNotFound), remoteEndPoint);
+                    {
+                        //SendRawAndRecycle(NetPacketPool.GetWithProperty(PacketProperty.PeerNotFound), remoteEndPoint);
+                        NetPacketPool.Recycle(packet);
+                    }
+                    
                     break;
             }
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -84,7 +84,7 @@ namespace LibSample
         public void Run()
         {
             Console.WriteLine("=== HolePunch Test ===");
-            
+
             EventBasedNetListener clientListener = new EventBasedNetListener();
             EventBasedNatPunchListener natPunchListener1 = new EventBasedNatPunchListener();
             EventBasedNatPunchListener natPunchListener2 = new EventBasedNatPunchListener();
@@ -122,7 +122,7 @@ namespace LibSample
 
             _c1 = new NetManager(clientListener)
             {
-                IPv6Enabled = IPv6Mode.DualMode,
+                IPv6Mode = IPv6Mode.DualMode,
                 NatPunchEnabled = true
             };
             _c1.NatPunchModule.Init(natPunchListener1);
@@ -130,7 +130,7 @@ namespace LibSample
 
             _c2 = new NetManager(clientListener)
             {
-                IPv6Enabled = IPv6Mode.DualMode,
+                IPv6Mode = IPv6Mode.DualMode,
                 NatPunchEnabled = true
             };
             _c2.NatPunchModule.Init(natPunchListener2);
@@ -138,7 +138,7 @@ namespace LibSample
 
             _puncher = new NetManager(clientListener)
             {
-                IPv6Enabled = IPv6Mode.DualMode,
+                IPv6Mode = IPv6Mode.DualMode,
                 NatPunchEnabled = true
             };
             _puncher.Start(ServerPort);
@@ -166,7 +166,7 @@ namespace LibSample
                         _c1.Stop();
                     }
                 }
-                
+
                 DateTime nowTime = DateTime.UtcNow;
 
                 _c1.NatPunchModule.PollEvents();

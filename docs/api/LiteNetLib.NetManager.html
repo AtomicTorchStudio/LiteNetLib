@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width">
     <meta name="title" content="Class NetManager
    ">
-    <meta name="generator" content="docfx 2.56.6.0">
+    <meta name="generator" content="docfx 2.56.7.0">
     
     <link rel="shortcut icon" href="../favicon.ico">
     <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -90,7 +90,7 @@
   <h6><strong>Assembly</strong>: LiteNetLib.dll</h6>
   <h5 id="LiteNetLib_NetManager_syntax">Syntax</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public class NetManager : INetSocketListener, IEnumerable&lt;NetPeer&gt;, IEnumerable</code></pre>
+    <pre><code class="lang-csharp hljs">public class NetManager : IEnumerable&lt;NetPeer&gt;, IEnumerable</code></pre>
   </div>
   <h3 id="constructors">Constructors
   </h3>
@@ -184,7 +184,7 @@
   
   
   <h4 id="LiteNetLib_NetManager_DisconnectTimeout" data-uid="LiteNetLib.NetManager.DisconnectTimeout">DisconnectTimeout</h4>
-  <div class="markdown level1 summary"><p>If NetManager doesn&apos;t receive any packet from remote peer during this time then connection will be closed
+  <div class="markdown level1 summary"><p>If NetManager doesn&apos;t receive any packet from remote peer during this time (in milliseconds) then connection will be closed
 (including library internal keepalive packets)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
@@ -234,13 +234,13 @@
   </table>
   
   
-  <h4 id="LiteNetLib_NetManager_IPv6Enabled" data-uid="LiteNetLib.NetManager.IPv6Enabled">IPv6Enabled</h4>
+  <h4 id="LiteNetLib_NetManager_IPv6Mode" data-uid="LiteNetLib.NetManager.IPv6Mode">IPv6Mode</h4>
   <div class="markdown level1 summary"><p>IPv6 support</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
   <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public IPv6Mode IPv6Enabled</code></pre>
+    <pre><code class="lang-csharp hljs">public IPv6Mode IPv6Mode</code></pre>
   </div>
   <h5 class="fieldValue">Field Value</h5>
   <table class="table table-bordered table-striped table-condensed">
@@ -360,7 +360,7 @@
   
   
   <h4 id="LiteNetLib_NetManager_PingInterval" data-uid="LiteNetLib.NetManager.PingInterval">PingInterval</h4>
-  <div class="markdown level1 summary"><p>Interval for latency detection and checking connection</p>
+  <div class="markdown level1 summary"><p>Interval for latency detection and checking connection (in milliseconds)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -385,7 +385,7 @@
   
   
   <h4 id="LiteNetLib_NetManager_ReconnectDelay" data-uid="LiteNetLib.NetManager.ReconnectDelay">ReconnectDelay</h4>
-  <div class="markdown level1 summary"><p>Delay between initial connection attempts</p>
+  <div class="markdown level1 summary"><p>Delay between initial connection attempts (in milliseconds)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -485,7 +485,7 @@
   
   
   <h4 id="LiteNetLib_NetManager_SimulationMaxLatency" data-uid="LiteNetLib.NetManager.SimulationMaxLatency">SimulationMaxLatency</h4>
-  <div class="markdown level1 summary"><p>Maximum simulated latency</p>
+  <div class="markdown level1 summary"><p>Maximum simulated latency (in milliseconds)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -510,7 +510,7 @@
   
   
   <h4 id="LiteNetLib_NetManager_SimulationMinLatency" data-uid="LiteNetLib.NetManager.SimulationMinLatency">SimulationMinLatency</h4>
-  <div class="markdown level1 summary"><p>Minimum simulated latency</p>
+  <div class="markdown level1 summary"><p>Minimum simulated latency (in milliseconds)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -685,7 +685,9 @@
   
   
   <h4 id="LiteNetLib_NetManager_UpdateTime" data-uid="LiteNetLib.NetManager.UpdateTime">UpdateTime</h4>
-  <div class="markdown level1 summary"><p>Library logic update and send period in milliseconds</p>
+  <div class="markdown level1 summary"><p>Library logic update and send period in milliseconds
+Lowest values in Windows doesn&apos;t change much because of Thread.Sleep precision
+To more frequent sends (or sends tied to your game logic) use <a class="xref" href="LiteNetLib.NetManager.html#LiteNetLib_NetManager_TriggerUpdate">TriggerUpdate()</a></p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>
@@ -703,6 +705,32 @@
     <tbody>
       <tr>
         <td><span class="xref">System.Int32</span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <h4 id="LiteNetLib_NetManager_UseNativeSockets" data-uid="LiteNetLib.NetManager.UseNativeSockets">UseNativeSockets</h4>
+  <div class="markdown level1 summary"><p>Experimental feature mostly for servers. Only for Windows/Linux
+use direct socket calls for send/receive to drastically increase speed and reduce GC pressure</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public bool UseNativeSockets</code></pre>
+  </div>
+  <h5 class="fieldValue">Field Value</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Boolean</span></td>
         <td></td>
       </tr>
     </tbody>
@@ -1199,6 +1227,99 @@
   </table>
   
   
+  <a id="LiteNetLib_NetManager_CreateNtpRequest_" data-uid="LiteNetLib.NetManager.CreateNtpRequest*"></a>
+  <h4 id="LiteNetLib_NetManager_CreateNtpRequest_System_Net_IPEndPoint_" data-uid="LiteNetLib.NetManager.CreateNtpRequest(System.Net.IPEndPoint)">CreateNtpRequest(IPEndPoint)</h4>
+  <div class="markdown level1 summary"><p>Create the requests for NTP server</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CreateNtpRequest(IPEndPoint endPoint)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.Net.IPEndPoint</span></td>
+        <td><span class="parametername">endPoint</span></td>
+        <td><p>NTP Server address.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="LiteNetLib_NetManager_CreateNtpRequest_" data-uid="LiteNetLib.NetManager.CreateNtpRequest*"></a>
+  <h4 id="LiteNetLib_NetManager_CreateNtpRequest_System_String_" data-uid="LiteNetLib.NetManager.CreateNtpRequest(System.String)">CreateNtpRequest(String)</h4>
+  <div class="markdown level1 summary"><p>Create the requests for NTP server (default port)</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CreateNtpRequest(string ntpServerAddress)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ntpServerAddress</span></td>
+        <td><p>NTP Server address.</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  <a id="LiteNetLib_NetManager_CreateNtpRequest_" data-uid="LiteNetLib.NetManager.CreateNtpRequest*"></a>
+  <h4 id="LiteNetLib_NetManager_CreateNtpRequest_System_String_System_Int32_" data-uid="LiteNetLib.NetManager.CreateNtpRequest(System.String,System.Int32)">CreateNtpRequest(String, Int32)</h4>
+  <div class="markdown level1 summary"><p>Create the requests for NTP server</p>
+</div>
+  <div class="markdown level1 conceptual"></div>
+  <h5 class="decalaration">Declaration</h5>
+  <div class="codewrapper">
+    <pre><code class="lang-csharp hljs">public void CreateNtpRequest(string ntpServerAddress, int port)</code></pre>
+  </div>
+  <h5 class="parameters">Parameters</h5>
+  <table class="table table-bordered table-striped table-condensed">
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="xref">System.String</span></td>
+        <td><span class="parametername">ntpServerAddress</span></td>
+        <td><p>NTP Server address.</p>
+</td>
+      </tr>
+      <tr>
+        <td><span class="xref">System.Int32</span></td>
+        <td><span class="parametername">port</span></td>
+        <td><p>port</p>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
   <a id="LiteNetLib_NetManager_DisconnectAll_" data-uid="LiteNetLib.NetManager.DisconnectAll*"></a>
   <h4 id="LiteNetLib_NetManager_DisconnectAll" data-uid="LiteNetLib.NetManager.DisconnectAll">DisconnectAll()</h4>
   <div class="markdown level1 summary"><p>Disconnect all peers without any additional data</p>
@@ -1576,18 +1697,6 @@
   </table>
   
   
-  <a id="LiteNetLib_NetManager_ManualReceive_" data-uid="LiteNetLib.NetManager.ManualReceive*"></a>
-  <h4 id="LiteNetLib_NetManager_ManualReceive" data-uid="LiteNetLib.NetManager.ManualReceive">ManualReceive()</h4>
-  <div class="markdown level1 summary"><p>Receive logic. It will call Receive events immediately without need to use PollEvents or UnsyncedEvents
-Use this only when NetManager started in manual mode</p>
-</div>
-  <div class="markdown level1 conceptual"></div>
-  <h5 class="decalaration">Declaration</h5>
-  <div class="codewrapper">
-    <pre><code class="lang-csharp hljs">public void ManualReceive()</code></pre>
-  </div>
-  
-  
   <a id="LiteNetLib_NetManager_ManualUpdate_" data-uid="LiteNetLib.NetManager.ManualUpdate*"></a>
   <h4 id="LiteNetLib_NetManager_ManualUpdate_System_Int32_" data-uid="LiteNetLib.NetManager.ManualUpdate(System.Int32)">ManualUpdate(Int32)</h4>
   <div class="markdown level1 summary"><p>Update and send logic. Use this only when NetManager started in manual mode</p>
@@ -1619,7 +1728,8 @@ Use this only when NetManager started in manual mode</p>
   
   <a id="LiteNetLib_NetManager_PollEvents_" data-uid="LiteNetLib.NetManager.PollEvents*"></a>
   <h4 id="LiteNetLib_NetManager_PollEvents" data-uid="LiteNetLib.NetManager.PollEvents">PollEvents()</h4>
-  <div class="markdown level1 summary"><p>Receive all pending events. Call this in game update code</p>
+  <div class="markdown level1 summary"><p>Receive all pending events. Call this in game update code
+In Manual mode it will call also socket Receive (which can be slow)</p>
 </div>
   <div class="markdown level1 conceptual"></div>
   <h5 class="decalaration">Declaration</h5>

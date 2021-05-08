@@ -181,7 +181,7 @@ namespace LiteNetLib.Tests
             var result = false;
             DisconnectInfo disconnectInfo = default;
 
-            ManagerStack.ClientListener(1).PeerDisconnectedEvent += (peer, info) => 
+            ManagerStack.ClientListener(1).PeerDisconnectedEvent += (peer, info) =>
             {
                 result = true;
                 disconnectInfo = info;
@@ -227,7 +227,7 @@ namespace LiteNetLib.Tests
             };
 
             server.Stop();
-            
+
             Assert.True(server.ConnectedPeersCount == 0);
             while (client.ConnectedPeersCount == 1)
             {
@@ -282,7 +282,7 @@ namespace LiteNetLib.Tests
             var server = ManagerStack.Server(1);
             var client = ManagerStack.Client(1);
             bool rejectReceived = false;
-            
+
             ManagerStack.ServerListener(1).ClearConnectionRequestEvent();
             ManagerStack.ServerListener(1).ConnectionRequestEvent += request =>
             {
@@ -370,7 +370,7 @@ namespace LiteNetLib.Tests
             };
 
             server.DisconnectAll(new byte[]{1, 2, 3, 4}, 0, 4);
-            
+
             Assert.AreEqual(0, server.GetPeersCount(ConnectionState.Connected));
 
             while (client.GetPeersCount(ConnectionState.Connected) != 0)
@@ -379,7 +379,7 @@ namespace LiteNetLib.Tests
                 client.PollEvents();
                 server.PollEvents();
             }
-           
+
             //Wait for client 'ShutdownOk' response
             Thread.Sleep(100);
 
@@ -488,7 +488,7 @@ namespace LiteNetLib.Tests
             NetManager client = ManagerStack.Client(1);
             var clientDisconnected = false;
             var serverDisconnected = false;
-            
+
             ManagerStack.ClientListener(1).PeerDisconnectedEvent += (peer, info) =>
             {
                 Assert.AreEqual(DisconnectReason.DisconnectPeerCalled, info.Reason);
@@ -700,7 +700,7 @@ namespace LiteNetLib.Tests
             while (server.ConnectedPeersCount != 1 || client.ConnectedPeersCount != 1)
             {
                 Thread.Sleep(15);
-                server.ManualReceive();
+                server.PollEvents();
                 server.ManualUpdate(15);
             }
 

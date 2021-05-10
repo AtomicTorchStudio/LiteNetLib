@@ -227,24 +227,27 @@ namespace LiteNetLib
             IPEndPoint endPoint = null;
             NetPacket packet = _listener.NetPacketPool.GetPacket(NetConstants.MaxPacketSize);
 
+            NetDebug.WriteForce("NativeReceiveLogic started");
             var stopwatch = Stopwatch.StartNew();
 
             while (IsActive())
             {
+                try
+                {
                 //Reading data
                 stopwatch.Reset();
                 stopwatch.Start();
 
                 packet.Size = NativeSocket.RecvFrom(socketHandle, packet.RawData, NetConstants.MaxPacketSize, addrBuffer, ref addrSize);
                 if (packet.Size == 0)
-                    return;
+                    continue;
                 if (packet.Size == -1)
                 {
                     SocketError errorCode = NativeSocket.GetSocketError();
                     if (errorCode == SocketError.WouldBlock || errorCode == SocketError.TimedOut) //Linux timeout EAGAIN
                         continue;
                     if (ProcessError(new SocketException((int)errorCode), endPoint))
-                        return;
+                        continue;
                     continue;
                 }
 
@@ -262,7 +265,14 @@ namespace LiteNetLib
 
                 _listener.OnMessageReceived(packet, 0, endPoint);
                 packet = _listener.NetPacketPool.GetPacket(NetConstants.MaxPacketSize);
+                }
+                catch (Exception ex)
+                {
+                    NetDebug.WriteError("NativeReceiveLogic exception: {0}", ex.ToString());
+                }
             }
+
+            NetDebug.WriteForce("NativeReceiveLogic finished");
         }
 
         private void ReceiveLogic(object state)

@@ -72,13 +72,13 @@ namespace LiteNetLib
             WriteLogic(level, str, args);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        //[Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
         internal static void WriteForce(string str, params object[] args)
         {
             WriteLogic(NetLogLevel.Trace, str, args);
         }
 
-        [Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
+        //[Conditional("DEBUG_MESSAGES"), Conditional("DEBUG")]
         internal static void WriteForce(NetLogLevel level, string str, params object[] args)
         {
             WriteLogic(level, str, args);

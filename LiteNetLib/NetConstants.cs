@@ -40,7 +40,7 @@
         //can be tuned
         public const int DefaultWindowSize = 64;
         public const int SocketBufferSize = 1024 * 1024; //1mb
-        public const int SocketTTL = 255;
+        public const int SocketTTL = 150;
 
         public const int HeaderSize = 1;
         public const int ChanneledHeaderSize = 4 + 1;
@@ -69,7 +69,7 @@
         //peer specific
         public const byte MaxConnectionNumber = 4;
 
-        public const int PacketPoolSize = 10000;
+        public const int PacketPoolSize = 0;
 
         public const int MaxChannelsCount = 512;
     }

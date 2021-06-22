@@ -171,7 +171,7 @@ namespace LiteNetLib
                     //NetDebug.Write($"[R]Ignored error: {(int)ex.SocketErrorCode} - {ex}");
                     break;
                 default:
-                    NetDebug.WriteError($"[R]Error code: {(int)ex.SocketErrorCode} - {ex.ToString()}");
+                    NetDebug.WriteError($"[R]Error code: {(int)ex.SocketErrorCode} - {ex}");
                     _listener.OnMessageReceived(null, ex.SocketErrorCode, (IPEndPoint)bufferEndPoint);
                     break;
             }
@@ -617,7 +617,7 @@ namespace LiteNetLib
                         }
                         else
                         {
-#if NETCOREAPP || NETSTANDARD2_0_OR_GREATER
+#if NETCOREAPP || NETSTANDARD2_1 || NETSTANDARD2_1_OR_GREATER
                             remoteEndPoint.Address.TryWriteBytes(new Span<byte>(socketAddress, 8, 16), out _);
 #else
                             byte[] addrBytes = remoteEndPoint.Address.GetAddressBytes();

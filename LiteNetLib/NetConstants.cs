@@ -69,7 +69,7 @@
         //peer specific
         public const byte MaxConnectionNumber = 4;
 
-        public const int PacketPoolSize = 0;
+        public const int PacketPoolSize = 1000;
 
         public const int MaxChannelsCount = 512;
     }

@@ -28,16 +28,12 @@ namespace LiteNetLib
 
     internal sealed class NetPacket
     {
-        private static readonly int LastProperty = Enum.GetValues(typeof(PacketProperty)).Length;
+        private static readonly int PropertiesCount = Enum.GetValues(typeof(PacketProperty)).Length;
         private static readonly int[] HeaderSizes;
 
         static NetPacket()
         {
-#if NET5_0_OR_GREATER || NET5_0
-            HeaderSizes = GC.AllocateUninitializedArray<int>(LastProperty + 1, true);
-#else
-            HeaderSizes = new int[LastProperty + 1];
-#endif
+            HeaderSizes = NetUtils.AllocatePinnedUninitializedArray<int>(PropertiesCount);
             for (int i = 0; i < HeaderSizes.Length; i++)
             {
                 switch ((PacketProperty)i)
@@ -162,7 +158,7 @@ namespace LiteNetLib
         public bool Verify()
         {
             byte property = (byte)(RawData[0] & 0x1F);
-            if (property > LastProperty)
+            if (property >= PropertiesCount)
                 return false;
             int headerSize = HeaderSizes[property];
             bool fragmented = (RawData[0] & 0x80) != 0;

@@ -217,6 +217,7 @@ namespace LiteNetLib
 
         private void NativeReceiveLogic(object state)
         {
+            try{
             Socket socket = (Socket)state;
             IntPtr socketHandle = socket.Handle;
             byte[] addrBuffer = new byte[socket.AddressFamily == AddressFamily.InterNetwork
@@ -273,6 +274,8 @@ namespace LiteNetLib
             }
 
             NetDebug.WriteForce("NativeReceiveLogic finished");
+            }
+            catch {} // just to prevent a crash
         }
 
         private void ReceiveLogic(object state)

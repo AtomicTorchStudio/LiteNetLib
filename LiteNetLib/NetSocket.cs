@@ -273,7 +273,7 @@ namespace LiteNetLib
                 }
             }
 
-            NetDebug.WriteForce("NativeReceiveLogic finished");
+            NetDebug.Write("NativeReceiveLogic finished");
             }
             catch {} // just to prevent a crash
         }
